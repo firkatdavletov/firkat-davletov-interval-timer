@@ -1,9 +1,24 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
 }
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) {
+        file.inputStream().use(::load)
+    }
+}
+
+fun localProperty(name: String, defaultValue: String = ""): String =
+    localProperties.getProperty(name, defaultValue).trim()
+
+fun asBuildConfigString(value: String): String =
+    "\"${value.replace("\\", "\\\\").replace("\"", "\\\"")}\""
 
 android {
     namespace = "com.firkat.intervaltraining"
@@ -21,6 +36,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "BASE_URL", asBuildConfigString(localProperty("baseUrl", "")))
+        buildConfigField("String", "APP_TOKEN", asBuildConfigString(localProperty("appToken", "")))
+        buildConfigField("String", "BEARER_TOKEN", asBuildConfigString(localProperty("bearerToken", "")))
     }
 
     buildTypes {
@@ -35,6 +54,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
