@@ -28,11 +28,11 @@ class TrainingViewModelTest {
             TEST_WORKOUT_ID to Workout(
                 id = TEST_WORKOUT_ID,
                 title = "Track Session",
-                warmupSeconds = 300,
-                cooldownSeconds = 300,
+                totalTime = 4,
+                elapsedTime = 0,
                 intervals = listOf(
-                    IntervalSegment(name = "Fast 1", durationSeconds = 2, targetPace = "4:00"),
-                    IntervalSegment(name = "Recovery", durationSeconds = 2, targetPace = "6:00"),
+                    IntervalSegment(name = "Fast 1", totalSeconds = 2, elapsedSeconds = 0),
+                    IntervalSegment(name = "Recovery", totalSeconds = 2, elapsedSeconds = 0),
                 ),
             )
         )
@@ -60,7 +60,7 @@ class TrainingViewModelTest {
 
         advanceTimeBy(1_000L)
         runCurrent()
-        assertEquals(1, viewModel.uiState.value.secondsLeftInSegment)
+        assertEquals(1, viewModel.uiState.value.elapsedSeconds)
 
         viewModel.onAction(TrainingAction.StartPauseClicked)
         runCurrent()

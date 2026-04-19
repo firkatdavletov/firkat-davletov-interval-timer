@@ -24,10 +24,10 @@ class LoadWorkoutViewModelTest {
             TEST_WORKOUT_ID to Workout(
                 id = TEST_WORKOUT_ID,
                 title = "Evening Intervals",
-                warmupSeconds = 300,
-                cooldownSeconds = 300,
+                totalTime = 60,
+                elapsedTime = 0,
                 intervals = listOf(
-                    IntervalSegment(name = "Fast", durationSeconds = 60, targetPace = "4:30"),
+                    IntervalSegment(name = "Fast", totalSeconds = 60, elapsedSeconds = 0),
                 ),
             )
         )

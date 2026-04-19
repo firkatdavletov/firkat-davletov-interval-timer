@@ -25,23 +25,28 @@ fun GhostButton(
     modifier: Modifier = Modifier,
     negative: Boolean = false,
 ) {
-    val strokeColor = if (negative) AppColor.error else AppColor.border
     val contentColor = if (negative) AppColor.error else AppColor.textSecondary
+    val borderColor = if (negative) AppColor.error.copy(alpha = 0.1f) else AppColor.border
 
     OutlinedButton(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.5.dp, strokeColor),
+        border = BorderStroke(1.5.dp, borderColor),
         modifier = modifier.height(44.dp),
         contentPadding = PaddingValues(horizontal = AppSpacing.l),
         colors =
             ButtonDefaults.outlinedButtonColors(
-                containerColor = Color.Transparent,
+                containerColor = AppColor.surface,
                 contentColor = contentColor,
                 disabledContentColor = AppColor.disabledText,
             ),
     ) {
-        Text(text = text, style = AppTypography.button, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(
+            text = text,
+            style = AppTypography.button,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 

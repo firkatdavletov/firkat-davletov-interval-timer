@@ -17,9 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.firkat.intervaltraining.ui.model.WorkoutTimerState
 import com.firkat.intervaltraining.ui.theme.AppColor
 import com.firkat.intervaltraining.ui.theme.AppSpacing
 import com.firkat.intervaltraining.ui.theme.AppTypography
@@ -30,18 +30,54 @@ import java.util.Locale
 fun TimerCard(
     modifier: Modifier = Modifier,
     title: String,
-    stateLabel: String,
-    elapsedMillis: Long,
-    durationMillis: Long,
-    accentColor: Color = AppColor.primary,
+    totalSeconds: Int,
+    elapsedSeconds: Int,
+    state: WorkoutTimerState,
 ) {
-    val safeDurationMillis = durationMillis.coerceAtLeast(0L)
-    val safeElapsedMillis = elapsedMillis.coerceAtLeast(0L)
-    val elapsedForProgress = if (safeDurationMillis == 0L) 0L else safeElapsedMillis.coerceAtMost(safeDurationMillis)
-    val progress = if (safeDurationMillis == 0L) 0f else elapsedForProgress.toFloat() / safeDurationMillis.toFloat()
+    val safeDurationMillis = totalSeconds.coerceAtLeast(0)
+    val safeElapsedMillis = elapsedSeconds.coerceAtLeast(0)
+    val elapsedForProgress = if (safeDurationMillis == 0) 0 else safeElapsedMillis.coerceAtMost(safeDurationMillis)
+    val progress =
+        if (safeDurationMillis == 0 ||
+            state is WorkoutTimerState.Pending
+        ) {
+            0f
+        } else {
+            elapsedForProgress.toFloat() / safeDurationMillis.toFloat()
+        }
 
     val formattedElapsed = TimeFormatter.formatIntervalTime(safeElapsedMillis)
     val formattedDuration = TimeFormatter.formatIntervalTime(safeDurationMillis)
+
+    val accentColor =
+        when (state) {
+            is WorkoutTimerState.Completed -> AppColor.secondary
+            is WorkoutTimerState.Paused -> AppColor.orange
+            WorkoutTimerState.Pending -> AppColor.textPrimary
+            is WorkoutTimerState.Started -> AppColor.primary
+        }
+
+    val stateLabelTextColor =
+        when (state) {
+            is WorkoutTimerState.Completed -> AppColor.secondary
+            is WorkoutTimerState.Paused -> AppColor.orange
+            WorkoutTimerState.Pending -> AppColor.textTertiary
+            is WorkoutTimerState.Started -> AppColor.primary
+        }
+
+    val titleColor =
+        when (state) {
+            is WorkoutTimerState.Completed -> AppColor.secondary
+            else -> AppColor.textSecondary
+        }
+
+    val stateLabel =
+        when (state) {
+            is WorkoutTimerState.Completed -> "Тренировка завершена"
+            is WorkoutTimerState.Paused -> "На паузе"
+            WorkoutTimerState.Pending -> "Готово к старту"
+            is WorkoutTimerState.Started -> "Выполняется"
+        }
 
     Card(
         modifier = modifier,
@@ -50,44 +86,61 @@ fun TimerCard(
         colors = CardDefaults.cardColors(containerColor = AppColor.surface),
     ) {
         Column(
-            modifier = Modifier
-                .padding(24.dp)
-                .fillMaxWidth(),
+            modifier =
+                Modifier
+                    .padding(24.dp)
+                    .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(AppSpacing.s),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
                 text = stateLabel.uppercase(Locale.ROOT),
                 style = AppTypography.state,
-                color = accentColor
+                color = stateLabelTextColor,
             )
             Text(
                 text = title,
                 style = AppTypography.label,
-                color = AppColor.textSecondary
+                color = titleColor,
             )
             Text(
-                text = formattedElapsed,
+                text = when (state) {
+                    WorkoutTimerState.Completed -> "00:00"
+                    WorkoutTimerState.Paused -> formattedElapsed
+                    WorkoutTimerState.Pending -> formattedDuration
+                    WorkoutTimerState.Started -> formattedElapsed
+                },
                 style = AppTypography.timerDisplay,
-                color = accentColor
+                color = accentColor,
             )
             Text(
-                text = "Прошло $formattedElapsed из $formattedDuration",
+                text =
+                    when (state) {
+                        WorkoutTimerState.Pending -> {
+                            "Общее время"
+                        }
+
+                        else -> {
+                            "Прошло $formattedElapsed из $formattedDuration"
+                        }
+                    },
                 style = AppTypography.caption,
-                color = AppColor.textTertiary
+                color = AppColor.textTertiary,
             )
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(4.dp)
-                    .clip(RoundedCornerShape(2.dp))
-                    .background(AppColor.border)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(4.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(AppColor.border),
             ) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth(progress)
-                        .fillMaxHeight()
-                        .background(accentColor)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(progress)
+                            .fillMaxHeight()
+                            .background(accentColor),
                 )
             }
         }
@@ -101,9 +154,9 @@ private fun TimerCardPreview() {
         TimerCard(
             modifier = Modifier.fillMaxWidth(),
             title = "Медленный бег",
-            stateLabel = "Выполняется",
-            elapsedMillis = 30_000L,
-            durationMillis = 5 * 60_000L,
+            totalSeconds = 5 * 60,
+            elapsedSeconds = 0,
+            state = WorkoutTimerState.Pending,
         )
     }
 }

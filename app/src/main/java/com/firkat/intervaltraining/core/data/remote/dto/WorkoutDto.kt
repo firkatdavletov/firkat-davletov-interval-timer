@@ -30,13 +30,13 @@ data class TimerIntervalDto(
 fun WorkoutResponseDto.toDomain(): Workout = Workout(
     id = timer.timerId.toString(),
     title = timer.title,
-    warmupSeconds = 0,
-    cooldownSeconds = 0,
+    totalTime = timer.totalTime,
+    elapsedTime = 0,
     intervals = timer.intervals.map { interval ->
         IntervalSegment(
             name = interval.title,
-            durationSeconds = interval.time,
-            targetPace = "",
+            totalSeconds = interval.time,
+            elapsedSeconds = 0
         )
     },
 )

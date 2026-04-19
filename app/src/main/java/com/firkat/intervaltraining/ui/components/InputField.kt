@@ -49,7 +49,8 @@ fun InputField(
             shape = shape,
             modifier =
                 Modifier
-                    .height(52.dp),
+                    .height(52.dp)
+                    .fillMaxWidth(),
             textStyle = AppTypography.body.copy(color = AppColor.textPrimary),
             placeholder = {
                 if (placeholder.isNotEmpty()) {

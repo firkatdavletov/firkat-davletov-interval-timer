@@ -20,6 +20,9 @@ fun localProperty(name: String, defaultValue: String = ""): String =
 fun asBuildConfigString(value: String): String =
     "\"${value.replace("\\", "\\\\").replace("\"", "\\\"")}\""
 
+fun asBuildConfigBoolean(value: String, defaultValue: Boolean = false): String =
+    value.toBooleanStrictOrNull()?.toString() ?: defaultValue.toString()
+
 android {
     namespace = "com.firkat.intervaltraining"
     compileSdk {
@@ -37,9 +40,26 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "BASE_URL", asBuildConfigString(localProperty("baseUrl", "")))
-        buildConfigField("String", "APP_TOKEN", asBuildConfigString(localProperty("appToken", "")))
-        buildConfigField("String", "BEARER_TOKEN", asBuildConfigString(localProperty("bearerToken", "")))
+        buildConfigField(
+            "String",
+            "BASE_URL",
+            asBuildConfigString(localProperty("baseUrl", ""))
+        )
+        buildConfigField(
+            "String",
+            "APP_TOKEN",
+            asBuildConfigString(localProperty("appToken", ""))
+        )
+        buildConfigField(
+            "String",
+            "BEARER_TOKEN",
+            asBuildConfigString(localProperty("bearerToken", ""))
+        )
+        buildConfigField(
+            "boolean",
+            "MOCK_ENABLED",
+            asBuildConfigBoolean(localProperty("mockEnabled", "false"))
+        )
     }
 
     buildTypes {

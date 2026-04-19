@@ -11,7 +11,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -66,7 +65,7 @@ class TrainingViewModel @Inject constructor(
                             workoutTitle = workout.title,
                             segments = workout.intervals,
                             currentSegmentIndex = 0,
-                            secondsLeftInSegment = workout.intervals.firstOrNull()?.durationSeconds ?: 0,
+                            elapsedSeconds = workout.intervals.firstOrNull()?.totalSeconds ?: 0,
                             isRunning = false,
                             isLoading = false,
                         )
@@ -113,8 +112,8 @@ class TrainingViewModel @Inject constructor(
         val current = _uiState.value
         if (!current.isRunning || current.segments.isEmpty()) return
 
-        if (current.secondsLeftInSegment > 1) {
-            _uiState.update { it.copy(secondsLeftInSegment = it.secondsLeftInSegment - 1) }
+        if (current.elapsedSeconds > 1) {
+            _uiState.update { it.copy(elapsedSeconds = it.elapsedSeconds - 1) }
             return
         }
 
@@ -124,7 +123,7 @@ class TrainingViewModel @Inject constructor(
                 it.copy(
                     isRunning = false,
                     currentSegmentIndex = current.segments.lastIndex,
-                    secondsLeftInSegment = 0,
+                    elapsedSeconds = 0,
                 )
             }
             tickerJob?.cancel()
@@ -135,19 +134,19 @@ class TrainingViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 currentSegmentIndex = nextIndex,
-                secondsLeftInSegment = current.segments[nextIndex].durationSeconds,
+                elapsedSeconds = current.segments[nextIndex].totalSeconds,
             )
         }
     }
 
     private fun resetWorkout() {
-        val firstDuration = _uiState.value.segments.firstOrNull()?.durationSeconds ?: 0
+        val firstDuration = _uiState.value.segments.firstOrNull()?.totalSeconds ?: 0
         tickerJob?.cancel()
         tickerJob = null
         _uiState.update {
             it.copy(
                 currentSegmentIndex = 0,
-                secondsLeftInSegment = firstDuration,
+                elapsedSeconds = firstDuration,
                 isRunning = false,
             )
         }
