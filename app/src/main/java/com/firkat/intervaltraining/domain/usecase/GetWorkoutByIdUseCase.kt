@@ -7,5 +7,7 @@ import javax.inject.Inject
 class GetWorkoutByIdUseCase @Inject constructor(
     private val workoutRepository: WorkoutRepository,
 ) {
-    suspend operator fun invoke(id: String): Workout = workoutRepository.getWorkoutById(id)
+    suspend operator fun invoke(param: String): Workout {
+        return workoutRepository.getWorkoutById(param)
+    }
 }

@@ -75,7 +75,9 @@ fun TrainingScreen(
 
             if (currentSegment != null) {
                 Text(text = "Текущий интервал: ${currentSegment.name}")
-                Text(text = "Пейс: ${currentSegment.targetPace}")
+                if (currentSegment.targetPace.isNotBlank()) {
+                    Text(text = "Пейс: ${currentSegment.targetPace}")
+                }
                 Text(text = "Осталось: ${state.secondsLeftInSegment} сек")
                 Text(text = "Интервал ${state.currentSegmentIndex + 1}/${state.segments.size}")
             } else {

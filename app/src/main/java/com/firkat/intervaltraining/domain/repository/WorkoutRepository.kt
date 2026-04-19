@@ -5,8 +5,4 @@ import kotlinx.coroutines.flow.Flow
 
 interface WorkoutRepository {
     suspend fun getWorkoutById(id: String): Workout
-
-    fun observeLastWorkoutId(): Flow<String?>
-
-    suspend fun saveLastWorkoutId(workoutId: String)
 }

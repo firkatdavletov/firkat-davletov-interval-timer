@@ -4,8 +4,6 @@ import app.cash.turbine.test
 import com.firkat.intervaltraining.core.model.IntervalSegment
 import com.firkat.intervaltraining.core.model.Workout
 import com.firkat.intervaltraining.domain.usecase.GetWorkoutByIdUseCase
-import com.firkat.intervaltraining.domain.usecase.ObserveLastWorkoutIdUseCase
-import com.firkat.intervaltraining.domain.usecase.SaveLastWorkoutIdUseCase
 import com.firkat.intervaltraining.fakes.FakeWorkoutRepository
 import com.firkat.intervaltraining.testutil.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -37,8 +35,6 @@ class LoadWorkoutViewModelTest {
 
     private val viewModel = LoadWorkoutViewModel(
         getWorkoutByIdUseCase = GetWorkoutByIdUseCase(repository),
-        saveLastWorkoutIdUseCase = SaveLastWorkoutIdUseCase(repository),
-        observeLastWorkoutIdUseCase = ObserveLastWorkoutIdUseCase(repository),
     )
 
     @Test
