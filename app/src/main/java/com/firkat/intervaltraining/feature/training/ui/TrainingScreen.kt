@@ -155,7 +155,7 @@ fun TrainingScreen(
 
 @Composable
 private fun TrainingTopBarStatus(state: TrainingUiState) {
-    val workoutRemainingSeconds = (state.workoutTotalSeconds - state.elapsedSeconds).coerceAtLeast(0)
+    val workoutElapsedSeconds = state.elapsedSeconds.coerceIn(0, state.workoutTotalSeconds)
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -202,7 +202,7 @@ private fun TrainingTopBarStatus(state: TrainingUiState) {
                 )
                 Spacer(Modifier.width(AppSpacing.xs))
                 Text(
-                    text = TimeFormatter.formatIntervalTime(workoutRemainingSeconds),
+                    text = TimeFormatter.formatIntervalTime(workoutElapsedSeconds),
                     style = AppTypography.label,
                     color = AppColor.primary,
                 )
