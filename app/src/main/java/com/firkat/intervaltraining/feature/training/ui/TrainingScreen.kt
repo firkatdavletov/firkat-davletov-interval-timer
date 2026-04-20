@@ -104,7 +104,6 @@ fun TrainingScreen(
             CenterAlignedTopAppBar(
                 modifier =
                     Modifier
-                        .systemBarsPadding()
                         .padding(start = AppSpacing.l, end = AppSpacing.xxl),
                 navigationIcon = {
                     BackButton(
