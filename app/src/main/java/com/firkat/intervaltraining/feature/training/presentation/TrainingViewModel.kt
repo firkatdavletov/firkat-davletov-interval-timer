@@ -3,11 +3,10 @@ package com.firkat.intervaltraining.feature.training.presentation
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.firkat.intervaltraining.R
 import com.firkat.intervaltraining.core.model.IntervalSegment
 import com.firkat.intervaltraining.core.model.Workout
-import com.firkat.intervaltraining.core.resources.StringProvider
 import com.firkat.intervaltraining.domain.usecase.GetWorkoutByIdUseCase
+import com.firkat.intervaltraining.feature.training.sound.TimerSoundPlayer
 import com.firkat.intervaltraining.feature.training.timer.TimerClock
 import com.firkat.intervaltraining.ui.model.IntervalTimerState
 import com.firkat.intervaltraining.ui.model.WorkoutTimerState
@@ -27,12 +26,14 @@ class TrainingViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val getWorkoutByIdUseCase: GetWorkoutByIdUseCase,
     private val timerClock: TimerClock,
+    private val timerSoundPlayer: TimerSoundPlayer,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TrainingUiState())
     val uiState: StateFlow<TrainingUiState> = _uiState.asStateFlow()
 
     private var tickerJob: Job? = null
+    private var soundSignalsJob: Job? = null
 
     init {
         val workoutId = savedStateHandle.get<String>(WORKOUT_ID_ARG).orEmpty()
@@ -137,6 +138,9 @@ class TrainingViewModel @Inject constructor(
         val state = _uiState.value
         val elapsedSeconds = state.elapsedSeconds.coerceIn(0, state.workoutTotalSeconds)
         val startedAtRealtimeMillis = timerClock.elapsedRealtimeMillis()
+        val shouldPlayStartSignal =
+            state.workoutTimerState == WorkoutTimerState.Pending &&
+                elapsedSeconds == 0
 
         persistTimerState(
             workoutId = state.workoutId,
@@ -148,10 +152,14 @@ class TrainingViewModel @Inject constructor(
             status = TimerStatus.Started,
             elapsedSeconds = elapsedSeconds,
         )
+        if (shouldPlayStartSignal) {
+            timerSoundPlayer.playSignal()
+        }
         startTicker()
     }
 
     private fun startWorkoutFromBeginning() {
+        stopSoundSignals()
         persistTimerState(
             workoutId = _uiState.value.workoutId,
             status = TimerStatus.Pending,
@@ -195,6 +203,7 @@ class TrainingViewModel @Inject constructor(
             status = TimerStatus.Pending,
             elapsedSeconds = 0,
         )
+        stopSoundSignals()
         stopTicker()
     }
 
@@ -224,9 +233,14 @@ class TrainingViewModel @Inject constructor(
             return
         }
 
-        _uiState.value = state.withTimerProgress(
+        val updatedState = state.withTimerProgress(
             status = TimerStatus.Started,
             elapsedSeconds = elapsedSeconds,
+        )
+        _uiState.value = updatedState
+        playIntervalTransitionSignals(
+            previousSegmentIndex = state.currentSegmentIndex,
+            currentSegmentIndex = updatedState.currentSegmentIndex,
         )
     }
 
@@ -244,6 +258,44 @@ class TrainingViewModel @Inject constructor(
             elapsedSeconds = state.workoutTotalSeconds,
         )
         stopTicker()
+        playCompletionSignals()
+    }
+
+    private fun playIntervalTransitionSignals(
+        previousSegmentIndex: Int,
+        currentSegmentIndex: Int,
+    ) {
+        val signalsCount = (currentSegmentIndex - previousSegmentIndex).coerceAtLeast(0)
+        playSoundSignals(signalsCount)
+    }
+
+    private fun playCompletionSignals() {
+        playSoundSignals(COMPLETION_SIGNAL_COUNT)
+    }
+
+    private fun playSoundSignals(count: Int) {
+        if (count <= 0) return
+        soundSignalsJob?.cancel()
+
+        if (count == 1) {
+            timerSoundPlayer.playSignal()
+            return
+        }
+
+        soundSignalsJob = viewModelScope.launch {
+            repeat(count) { index ->
+                timerSoundPlayer.playSignal()
+                if (index < count - 1) {
+                    delay(SIGNAL_REPEAT_DELAY_MILLIS)
+                }
+            }
+            soundSignalsJob = null
+        }
+    }
+
+    private fun stopSoundSignals() {
+        soundSignalsJob?.cancel()
+        soundSignalsJob = null
     }
 
     private fun restoreTimerStatus(
@@ -400,5 +452,7 @@ class TrainingViewModel @Inject constructor(
         private const val KEY_STARTED_AT_REALTIME_MILLIS = "training.timer.started_at_realtime_millis"
         private const val TICK_INTERVAL_MILLIS = 1_000L
         private const val MILLIS_IN_SECOND = 1_000L
+        private const val SIGNAL_REPEAT_DELAY_MILLIS = 250L
+        private const val COMPLETION_SIGNAL_COUNT = 2
     }
 }

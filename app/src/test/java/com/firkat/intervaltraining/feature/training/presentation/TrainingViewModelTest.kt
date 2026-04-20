@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.firkat.intervaltraining.core.model.IntervalSegment
 import com.firkat.intervaltraining.core.model.Workout
 import com.firkat.intervaltraining.domain.usecase.GetWorkoutByIdUseCase
+import com.firkat.intervaltraining.feature.training.sound.TimerSoundPlayer
 import com.firkat.intervaltraining.feature.training.timer.TimerClock
 import com.firkat.intervaltraining.fakes.FakeWorkoutRepository
 import com.firkat.intervaltraining.testutil.MainDispatcherRule
@@ -27,6 +28,7 @@ class TrainingViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val timerClock = FakeTimerClock()
+    private val timerSoundPlayer = FakeTimerSoundPlayer()
 
     private val repository = FakeWorkoutRepository(
         mutableMapOf(
@@ -189,6 +191,64 @@ class TrainingViewModelTest {
         assertFalse(state.isRunning)
     }
 
+    @Test
+    fun `start action plays start signal only when training starts from beginning`() = runTest {
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+
+        viewModel.onAction(TrainingAction.StartPauseClicked)
+        runCurrent()
+
+        assertEquals(1, timerSoundPlayer.signalCount)
+
+        viewModel.onAction(TrainingAction.StartPauseClicked)
+        runCurrent()
+        viewModel.onAction(TrainingAction.StartPauseClicked)
+        runCurrent()
+
+        assertEquals(1, timerSoundPlayer.signalCount)
+
+        viewModel.onAction(TrainingAction.ResetClicked)
+        runCurrent()
+    }
+
+    @Test
+    fun `timer plays signal when moving to next interval`() = runTest {
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+
+        viewModel.onAction(TrainingAction.StartPauseClicked)
+        timerClock.advanceBy(2_000L)
+        advanceTimeBy(2_000L)
+        runCurrent()
+
+        assertEquals(2, timerSoundPlayer.signalCount)
+
+        viewModel.onAction(TrainingAction.ResetClicked)
+        runCurrent()
+    }
+
+    @Test
+    fun `timer plays two completion signals when workout completes`() = runTest {
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+
+        viewModel.onAction(TrainingAction.StartPauseClicked)
+        timerClock.advanceBy(2_000L)
+        advanceTimeBy(2_000L)
+        runCurrent()
+        timerClock.advanceBy(2_000L)
+        advanceTimeBy(1_000L)
+        runCurrent()
+
+        assertEquals(3, timerSoundPlayer.signalCount)
+
+        advanceTimeBy(250L)
+        runCurrent()
+
+        assertEquals(4, timerSoundPlayer.signalCount)
+    }
+
     private fun createViewModel(
         savedStateHandle: SavedStateHandle = SavedStateHandle(
             mapOf(TrainingViewModel.WORKOUT_ID_ARG to TEST_WORKOUT_ID)
@@ -198,6 +258,7 @@ class TrainingViewModelTest {
             savedStateHandle = savedStateHandle,
             getWorkoutByIdUseCase = GetWorkoutByIdUseCase(repository),
             timerClock = timerClock,
+            timerSoundPlayer = timerSoundPlayer,
         )
     }
 
@@ -208,6 +269,15 @@ class TrainingViewModelTest {
 
         fun advanceBy(millis: Long) {
             elapsedRealtimeMillis += millis
+        }
+    }
+
+    private class FakeTimerSoundPlayer : TimerSoundPlayer {
+        var signalCount = 0
+            private set
+
+        override fun playSignal() {
+            signalCount++
         }
     }
 

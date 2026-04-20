@@ -31,16 +31,16 @@ class WorkoutRepositoryImpl @Inject constructor(
     private fun mockWorkout(id: String): Workout = Workout(
         id = id,
         title = "Тренировка 7",
-        totalTime = 900,
+        totalTime = 30,
         elapsedTime = 0,
         intervals = listOf(
-            IntervalSegment(name = "Ходьба в среднем темпе", totalSeconds = 300, elapsedSeconds = 0),
-            IntervalSegment(name = "Ходьба в интенсивном темпе", totalSeconds = 300, elapsedSeconds = 0),
-            IntervalSegment(name = "Ходьба в среднем темпе", totalSeconds = 120, elapsedSeconds = 0),
-            IntervalSegment(name = "Медленный бег", totalSeconds = 30, elapsedSeconds = 0),
-            IntervalSegment(name = "Ходьба в среднем темпе", totalSeconds = 90, elapsedSeconds = 0),
-            IntervalSegment(name = "Медленный бег", totalSeconds = 30, elapsedSeconds = 0),
-            IntervalSegment(name = "Ходьба в среднем темпе", totalSeconds = 30, elapsedSeconds = 0),
+            IntervalSegment(name = "Ходьба в среднем темпе", totalSeconds = 10, elapsedSeconds = 0),
+            IntervalSegment(name = "Ходьба в интенсивном темпе", totalSeconds = 10, elapsedSeconds = 0),
+            IntervalSegment(name = "Ходьба в среднем темпе", totalSeconds = 10, elapsedSeconds = 0),
+//            IntervalSegment(name = "Медленный бег", totalSeconds = 30, elapsedSeconds = 0),
+//            IntervalSegment(name = "Ходьба в среднем темпе", totalSeconds = 90, elapsedSeconds = 0),
+//            IntervalSegment(name = "Медленный бег", totalSeconds = 30, elapsedSeconds = 0),
+//            IntervalSegment(name = "Ходьба в среднем темпе", totalSeconds = 30, elapsedSeconds = 0),
         ),
     )
 }
