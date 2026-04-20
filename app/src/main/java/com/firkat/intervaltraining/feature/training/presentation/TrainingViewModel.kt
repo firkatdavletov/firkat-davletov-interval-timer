@@ -3,8 +3,10 @@ package com.firkat.intervaltraining.feature.training.presentation
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.firkat.intervaltraining.R
 import com.firkat.intervaltraining.core.model.IntervalSegment
 import com.firkat.intervaltraining.core.model.Workout
+import com.firkat.intervaltraining.core.resources.StringProvider
 import com.firkat.intervaltraining.domain.usecase.GetWorkoutByIdUseCase
 import com.firkat.intervaltraining.feature.training.sound.TimerSoundPlayer
 import com.firkat.intervaltraining.feature.training.timer.TimerClock
@@ -27,6 +29,7 @@ class TrainingViewModel @Inject constructor(
     private val getWorkoutByIdUseCase: GetWorkoutByIdUseCase,
     private val timerClock: TimerClock,
     private val timerSoundPlayer: TimerSoundPlayer,
+    private val stringProvider: StringProvider,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(TrainingUiState())
@@ -39,7 +42,10 @@ class TrainingViewModel @Inject constructor(
         val workoutId = savedStateHandle.get<String>(WORKOUT_ID_ARG).orEmpty()
         if (workoutId.isBlank()) {
             _uiState.update {
-                it.copy(isLoading = false)
+                it.copy(
+                    isLoading = false,
+                    errorMessage = stringProvider.getString(R.string.error_workout_id_not_found),
+                )
             }
         } else {
             loadWorkout(workoutId)
@@ -60,6 +66,7 @@ class TrainingViewModel @Inject constructor(
                 it.copy(
                     workoutId = workoutId,
                     isLoading = true,
+                    errorMessage = null,
                 )
             }
 
@@ -80,6 +87,7 @@ class TrainingViewModel @Inject constructor(
                         segments = workout.intervals,
                         workoutTotalSeconds = totalSeconds,
                         isLoading = false,
+                        errorMessage = null,
                     ).withTimerProgress(
                         status = resolvedStatus,
                         elapsedSeconds = elapsedSeconds,
@@ -113,6 +121,7 @@ class TrainingViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
+                            errorMessage = stringProvider.getString(R.string.error_load_workout_failed),
                         )
                     }
                 }

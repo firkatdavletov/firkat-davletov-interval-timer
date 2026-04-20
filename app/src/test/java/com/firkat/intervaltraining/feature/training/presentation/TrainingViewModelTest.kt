@@ -7,6 +7,7 @@ import com.firkat.intervaltraining.domain.usecase.GetWorkoutByIdUseCase
 import com.firkat.intervaltraining.feature.training.sound.TimerSoundPlayer
 import com.firkat.intervaltraining.feature.training.timer.TimerClock
 import com.firkat.intervaltraining.fakes.FakeWorkoutRepository
+import com.firkat.intervaltraining.testutil.FakeStringProvider
 import com.firkat.intervaltraining.testutil.MainDispatcherRule
 import com.firkat.intervaltraining.ui.model.IntervalTimerState
 import com.firkat.intervaltraining.ui.model.WorkoutTimerState
@@ -57,6 +58,28 @@ class TrainingViewModelTest {
         assertEquals(0, state.elapsedSeconds)
         assertEquals(WorkoutTimerState.Pending, state.workoutTimerState)
         assertFalse(state.isLoading)
+    }
+
+    @Test
+    fun `sets error message when workout id is missing`() = runTest {
+        val viewModel = createViewModel(SavedStateHandle())
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertFalse(state.isLoading)
+        assertEquals("Workout id не найден", state.errorMessage)
+    }
+
+    @Test
+    fun `sets error message when workout loading fails`() = runTest {
+        repository.shouldThrow = true
+
+        val viewModel = createViewModel()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertFalse(state.isLoading)
+        assertEquals("Не удалось загрузить тренировку", state.errorMessage)
     }
 
     @Test
@@ -259,6 +282,7 @@ class TrainingViewModelTest {
             getWorkoutByIdUseCase = GetWorkoutByIdUseCase(repository),
             timerClock = timerClock,
             timerSoundPlayer = timerSoundPlayer,
+            stringProvider = FakeStringProvider(),
         )
     }
 

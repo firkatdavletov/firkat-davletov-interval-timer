@@ -37,19 +37,19 @@ fun TimerCard(
     elapsedSeconds: Int,
     state: WorkoutTimerState,
 ) {
-    val safeDurationMillis = totalSeconds.coerceAtLeast(0)
-    val safeElapsedMillis = elapsedSeconds.coerceAtLeast(0)
-    val elapsedForProgress = if (safeDurationMillis == 0) 0 else safeElapsedMillis.coerceAtMost(safeDurationMillis)
+    val safeDurationSec = totalSeconds.coerceAtLeast(0)
+    val safeElapsedSec = elapsedSeconds.coerceAtLeast(0)
+    val elapsedForProgress = if (safeDurationSec == 0) 0 else safeElapsedSec.coerceAtMost(safeDurationSec)
     val progress =
-        if (safeDurationMillis == 0 ||
+        if (safeDurationSec == 0 ||
             state is WorkoutTimerState.Pending
         ) {
             0f
         } else {
-            elapsedForProgress.toFloat() / safeDurationMillis.toFloat()
+            elapsedForProgress.toFloat() / safeDurationSec.toFloat()
         }
 
-    val formattedDuration = TimeFormatter.formatIntervalTime(safeDurationMillis)
+    val formattedDuration = TimeFormatter.formatIntervalTime(safeDurationSec)
     val formattedElapsed = TimeFormatter.formatIntervalTime(elapsedForProgress)
 
     val accentColor =

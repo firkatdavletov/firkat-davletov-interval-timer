@@ -43,7 +43,7 @@ android {
         buildConfigField(
             "String",
             "BASE_URL",
-            asBuildConfigString(localProperty("baseUrl", ""))
+            asBuildConfigString(localProperty("baseUrl", "https://example.com"))
         )
         buildConfigField(
             "String",

@@ -36,6 +36,11 @@
     <string name="timer_card_elapsed_of_total">%1$s из %2$s</string>
     <string name="timer_card_elapsed_label">Прошло %1$s из %2$s</string>
 
+    <string name="mock_workout_title">Тренировка 7</string>
+    <string name="mock_interval_medium_walk">Ходьба в среднем темпе</string>
+    <string name="mock_interval_intensive_walk">Ходьба в интенсивном темпе</string>
+    <string name="mock_interval_slow_run">Медленный бег</string>
+
     <string name="preview_workout_title">Тренировка</string>
     <string name="preview_interval_warmup">Разминка</string>
     <string name="preview_interval_fast_run">Быстрый бег</string>

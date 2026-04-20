@@ -39,10 +39,10 @@ fun IntervalItem(
     elapsedSeconds: Int,
     state: IntervalTimerState,
 ) {
-    val safeDurationMillis = totalSeconds.coerceAtLeast(0)
-    val safeElapsedMillis = elapsedSeconds.coerceAtLeast(0)
-    val elapsedForProgress = if (safeDurationMillis == 0) 0 else safeElapsedMillis.coerceAtMost(safeDurationMillis)
-    val progress = if (safeDurationMillis == 0) 0f else elapsedForProgress.toFloat() / safeDurationMillis.toFloat()
+    val safeDurationSec = totalSeconds.coerceAtLeast(0)
+    val safeElapsedSec = elapsedSeconds.coerceAtLeast(0)
+    val elapsedForProgress = if (safeDurationSec == 0) 0 else safeElapsedSec.coerceAtMost(safeDurationSec)
+    val progress = if (safeDurationSec == 0) 0f else elapsedForProgress.toFloat() / safeDurationSec.toFloat()
     val borderColor =
         when (state) {
             is IntervalTimerState.Completed -> AppColor.disabledBg

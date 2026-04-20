@@ -14,7 +14,7 @@ import com.firkat.intervaltraining.ui.theme.IntervalTrainingTheme
 
 @Composable
 internal fun ThemePreviewContainer(content: @Composable ColumnScope.() -> Unit) {
-    IntervalTrainingTheme(dynamicColor = false) {
+    IntervalTrainingTheme {
         Surface(color = AppColor.bg) {
             Column(
                 modifier =

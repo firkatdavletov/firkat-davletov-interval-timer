@@ -2,8 +2,6 @@ package com.firkat.intervaltraining.fakes
 
 import com.firkat.intervaltraining.core.model.Workout
 import com.firkat.intervaltraining.domain.repository.WorkoutRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 
 class FakeWorkoutRepository(
     private val workouts: MutableMap<String, Workout> = mutableMapOf(),
